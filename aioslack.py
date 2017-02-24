@@ -42,7 +42,8 @@ class Client(object):
 
                 if status != 200:
                     logging.error(
-                        f'rtm request was not successful [Code: {status}]')
+                        'rtm request was not successful [Code: {}]'.format(
+                        status))
                     raise Exception('not success')
                 else:
                     data = await resp.json()
@@ -55,7 +56,7 @@ class Client(object):
         while True:
             message = await websocket.recv()
             jsonified = json.loads(message)
-            logging.info(f'received {jsonified["type"]}')
+            logging.info('received {}'.format(jsonified["type"]))
             for handler in itertools.chain(
                     self.handlers[jsonified['type']],
                     self.handlers['*']):

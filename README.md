@@ -1,6 +1,6 @@
 # aioslack - asyncio powered slack client
 
-Requires `Python 3.6`
+Requires `Python 3.5`
 
 ## TODO
 
