@@ -1,12 +1,17 @@
 import asyncio
 import collections
+import itertools
 import json
+import logging
 
 import aiohttp
+import coloredlogs
 import websockets
 
+logging.basicConfig(level=logging.INFO)
+coloredlogs.install()
 
-class SlackClient(object):
+class Client(object):
 
     def __init__(self, token):
         self.token = token
@@ -17,13 +22,12 @@ class SlackClient(object):
         self.loop.run_until_complete(self.connect())
 
     async def connect(self):
-        print('> Starting')
-        print('> Handshaking')
+        logging.info('handshaking')
         url = await self.rtm_start()
-        print('> Connecting')
+        logging.info('connecting')
         async with websockets.connect(url) as websocket:
-            print('> Initializing')
-            await self.handler(websocket)
+            logging.info('initializing')
+            await self.consumer(websocket)
 
     async def rtm_start(self):
         headers = {'user-agent': 'slackclient/12 Python/3.6.0 Darwin/15.5.0'}
@@ -37,6 +41,8 @@ class SlackClient(object):
                 status = resp.status
 
                 if status != 200:
+                    logging.error(
+                        f'rtm request was not successful [Code: {status}]')
                     raise Exception('not success')
                 else:
                     data = await resp.json()
@@ -45,16 +51,21 @@ class SlackClient(object):
                     else:
                         raise Exception('not ok')
 
-    async def handler(self, websocket):
+    async def consumer(self, websocket):
         while True:
             message = await websocket.recv()
             jsonified = json.loads(message)
-            print(f'>>> Received {jsonified["type"]}')
-            for handler in self.handlers[jsonified['type']]:
-                task = self.loop.create_task(handler(jsonified))
+            logging.info(f'received {jsonified["type"]}')
+            for handler in itertools.chain(
+                    self.handlers[jsonified['type']],
+                    self.handlers['*']):
+                task = asyncio.ensure_future(handler(jsonified))
 
-    def register(self, event, callback):
-        self.handlers[event].append(callback)
+    def on(self, event, **options):
+        def _decorator(callback):
+            self.handlers[event].append(callback)
+            return callback
+        return _decorator
 
-    def unregister(self, event, callback):
+    def unregister(self, event_type, callback):
         self.handlers[event].remove(callback)

@@ -1,12 +1,23 @@
-from aioslack import SlackClient
+import aioslack
+
+token = 'use our token here'
+client = aioslack.Client(token)
 
 
-async def handle_presence(event):
-    print(event)
+@client.on('message')
+async def handle_message(event):
+    if 'text' in event:
+        print('{} said: {}'.format(
+            event['user'],
+            event['text']
+        ))
+
+
+# Captures all events.
+# @client.on('*')
+# async def handle_all(event):
+#     pass
 
 
 if __name__ == '__main__':
-    token = 'use your slack token here'
-    client = SlackClient(token)
-    client.register('presence_change', handle_presence)
     client.run()
