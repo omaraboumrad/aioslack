@@ -1,6 +1,6 @@
 import aioslack
 
-token = 'use our token here'
+token = open('token.txt', 'r').readline().strip()
 client = aioslack.Client(token)
 
 
