@@ -1,0 +1,8 @@
+CHANGES
+=======
+
+* Adds basic repository layout
+* Adds more features to aioslack
+* dropped f-strings
+* registering listeners using decorators
+* initial commit
