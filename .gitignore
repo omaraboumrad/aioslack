@@ -58,3 +58,6 @@ target/
 
 # pyenv
 .python-version
+
+# credentials file
+token.txt
