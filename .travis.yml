@@ -1,0 +1,14 @@
+language: python
+python:
+    - "3.5"
+
+install: python3 -m pip install -r test-requirements.txt --use-mirrors
+script: tox
+language: python
+python: 3.5
+env:
+    - TOX_ENV=pep8
+install:
+    - python3 -m pip install tox
+script:
+    - tox -e $TOX_ENV
